@@ -1,4 +1,4 @@
-package ru.mamykin.swipeabletextview
+package ru.mamykin.swipeabletextview.view
 
 import android.os.Handler
 import android.text.Selection

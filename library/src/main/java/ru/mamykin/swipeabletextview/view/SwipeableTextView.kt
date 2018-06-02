@@ -1,4 +1,4 @@
-package ru.mamykin.swipeabletextview
+package ru.mamykin.swipeabletextview.view
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,12 +7,14 @@ import android.graphics.Color
 import android.graphics.RectF
 import android.support.v7.widget.AppCompatTextView
 import android.text.*
+import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.util.SparseIntArray
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
+import ru.mamykin.swipeabletextview.controller.SwipeableTextViewController
 
 /**
  * Extended version of TextView, which following features:
@@ -269,5 +271,24 @@ class SwipeableTextView : AppCompatTextView {
             }
         }
         return indexes
+    }
+
+    abstract class SwipeableSpan : ClickableSpan() {
+
+        abstract fun onLongClick(view: View)
+    }
+
+    interface OnActionListener {
+
+        fun onClick(paragraph: String)
+
+        fun onLongClick(word: String)
+    }
+
+    interface OnSwipeListener {
+
+        fun onSwipeLeft()
+
+        fun onSwipeRight()
     }
 }

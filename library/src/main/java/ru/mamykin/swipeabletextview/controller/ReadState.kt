@@ -1,4 +1,4 @@
-package ru.mamykin.swipeabletextview
+package ru.mamykin.swipeabletextview.controller
 
 data class ReadState(
         val currentIndex: Int,
