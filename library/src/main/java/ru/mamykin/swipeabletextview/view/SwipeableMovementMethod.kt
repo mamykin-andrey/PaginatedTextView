@@ -7,10 +7,6 @@ import android.text.method.LinkMovementMethod
 import android.view.MotionEvent
 import android.widget.TextView
 
-/**
- * Вспомогательный класс для SwipeableTextView, позволяющий
- * отлавливать клики, лонг тапы, и горизонталных свайпы
- */
 class SwipeableMovementMethod : LinkMovementMethod() {
 
     companion object {

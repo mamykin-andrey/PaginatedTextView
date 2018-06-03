@@ -1,40 +1,32 @@
 package ru.mamykin.swipeabletextview.view
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.RectF
 import android.support.v7.widget.AppCompatTextView
 import android.text.*
-import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.util.SparseIntArray
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
-import ru.mamykin.swipeabletextview.controller.SwipeableTextViewController
+import ru.mamykin.swipeabletextview.controller.ReadState
+import ru.mamykin.swipeabletextview.controller.PaginationController
+import ru.mamykin.swipeabletextview.extension.allIndexesOf
 
-/**
- * Extended version of TextView, which following features:
- * 1. Text pagination
- * 2. Swipes
- * 3. Clicks by words
- * 4. Long clicks by words
- * 5. Auto text sizing
- */
 class SwipeableTextView : AppCompatTextView {
 
     private val textCachedSizes = SparseIntArray()
     private val availableSpaceRect = RectF()
     private var maxTextSize = textSize
     private val textRect = RectF()
-    private var onWordClickedFunc: ((String) -> Unit)? = null
-    private var onParagraphClickedFunc: ((String) -> Unit)? = null
     private var initializedDimens: Boolean = false
     private var widthLimit: Int = 0
-    private lateinit var controller: SwipeableTextViewController
+    private lateinit var swipeListener: OnSwipeListener
+    private lateinit var actionListener: OnActionListener
+    private lateinit var controller: PaginationController
 
     constructor(context: Context) : super(context) {
         initSwipeableTextView()
@@ -56,15 +48,21 @@ class SwipeableTextView : AppCompatTextView {
     fun setup(text: CharSequence) {
         setOnSwipeListener(object : OnSwipeListener {
             override fun onSwipeLeft() {
-                setText(controller.getNextPage().pageText)
+                val nextPage = controller.getNextPage()
+                setText(nextPage.pageText)
+                actionListener.onPageLoaded(nextPage)
+                swipeListener.onSwipeLeft()
             }
 
             override fun onSwipeRight() {
-                setText(controller.getPrevPage().pageText)
+                val prevPage = controller.getPrevPage()
+                setText(prevPage.pageText)
+                actionListener.onPageLoaded(prevPage)
+                swipeListener.onSwipeRight()
             }
         })
         viewTreeObserver.addOnGlobalLayoutListener {
-            controller = SwipeableTextViewController(
+            controller = PaginationController(
                     text,
                     width,
                     height,
@@ -73,21 +71,18 @@ class SwipeableTextView : AppCompatTextView {
                     lineSpacingExtra,
                     includeFontPadding
             )
-            setText(controller.getCurrentPage().pageText)
+            val currentPage = controller.getCurrentPage()
+            setText(currentPage.pageText)
+            actionListener.onPageLoaded(currentPage)
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    fun setOnSwipeListener(swipeListener: OnSwipeListener) {
-        this.setOnTouchListener(SwipeDetector(swipeListener))
+    fun setOnSwipeListener(listener: OnSwipeListener) {
+        this.setOnTouchListener(SwipeDetector(listener))
     }
 
-    fun setOnWordClickedFunc(onWordClickedFunc: (String) -> Unit) {
-        this.onWordClickedFunc = onWordClickedFunc
-    }
-
-    fun setOnParagraphClickedFunc(onParagraphClickedFunc: (String) -> Unit) {
-        this.onParagraphClickedFunc = onParagraphClickedFunc
+    fun setOnActionListener(listener: OnActionListener) {
+        this.actionListener = listener
     }
 
     override fun setTextSize(size: Float) {
@@ -109,16 +104,16 @@ class SwipeableTextView : AppCompatTextView {
     }
 
     private fun adjustTextSize() {
-        if (initializedDimens) {
-            val heightLimit = measuredHeight - compoundPaddingBottom - compoundPaddingTop
-            widthLimit = measuredWidth - compoundPaddingLeft - compoundPaddingRight
-            availableSpaceRect.right = widthLimit.toFloat()
-            availableSpaceRect.bottom = heightLimit.toFloat()
-
-            val textSize = efficientTextSizeSearch(20, maxTextSize.toInt(), availableSpaceRect)
-
-            super.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
-        }
+//        if (initializedDimens) {
+//            val heightLimit = measuredHeight - compoundPaddingBottom - compoundPaddingTop
+//            widthLimit = measuredWidth - compoundPaddingLeft - compoundPaddingRight
+//            availableSpaceRect.right = widthLimit.toFloat()
+//            availableSpaceRect.bottom = heightLimit.toFloat()
+//
+//            val textSize = efficientTextSizeSearch(20, maxTextSize.toInt(), availableSpaceRect)
+//
+//            super.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
+//        }
     }
 
     /**
@@ -250,35 +245,22 @@ class SwipeableTextView : AppCompatTextView {
 
         override fun onClick(widget: View) {
             val paragraph = getSelectedParagraph(widget as TextView)
-            if (paragraph != null && !TextUtils.isEmpty(paragraph)) {
-                onWordClickedFunc?.invoke(paragraph.trim(' '))
+            if (!TextUtils.isEmpty(paragraph)) {
+                actionListener.onLongClick(paragraph!!)
             }
         }
 
         override fun onLongClick(view: View) {
             val word = getSelectedWord()
             if (!TextUtils.isEmpty(word)) {
-                onWordClickedFunc?.invoke(word)
+                actionListener.onClick(word)
             }
         }
-    }
-
-    private fun CharSequence.allIndexesOf(char: Char): List<Int> {
-        val indexes = mutableListOf<Int>()
-        for (i in 0 until this.length) {
-            if (this[i] == char) {
-                indexes.add(i)
-            }
-        }
-        return indexes
-    }
-
-    abstract class SwipeableSpan : ClickableSpan() {
-
-        abstract fun onLongClick(view: View)
     }
 
     interface OnActionListener {
+
+        fun onPageLoaded(state: ReadState)
 
         fun onClick(paragraph: String)
 
