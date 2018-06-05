@@ -1,4 +1,4 @@
-package ru.mamykin.swipeabletextview.view
+package ru.mamykin.paginatedtextview.view
 
 import android.content.Context
 import android.content.res.Resources
@@ -15,8 +15,8 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.TextView
-import ru.mamykin.swipeabletextview.controller.PaginationController
-import ru.mamykin.swipeabletextview.extension.allIndexesOf
+import ru.mamykin.paginatedtextview.controller.PaginationController
+import ru.mamykin.paginatedtextview.extension.allIndexesOf
 
 class SwipeableTextView : AppCompatTextView, OnSwipeListener {
 

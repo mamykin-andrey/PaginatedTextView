@@ -1,4 +1,4 @@
-package ru.mamykin.swipeabletextview.sample
+package ru.mamykin.paginatedtextview.sample
 
 import org.junit.Test
 

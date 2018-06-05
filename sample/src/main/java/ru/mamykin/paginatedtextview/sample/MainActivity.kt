@@ -1,14 +1,14 @@
-package ru.mamykin.swipeabletextview.sample
+package ru.mamykin.paginatedtextview.sample
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
-import ru.mamykin.swipeabletextview.controller.ReadState
-import ru.mamykin.swipeabletextview.view.OnActionListener
-import ru.mamykin.swipeabletextview.view.OnSwipeListener
-import ru.mamykin.swipeabletextview.view.SwipeableTextView
+import ru.mamykin.paginatedtextview.controller.ReadState
+import ru.mamykin.paginatedtextview.view.OnActionListener
+import ru.mamykin.paginatedtextview.view.OnSwipeListener
+import ru.mamykin.paginatedtextview.view.SwipeableTextView
 
 class MainActivity : AppCompatActivity(), OnSwipeListener, OnActionListener {
 

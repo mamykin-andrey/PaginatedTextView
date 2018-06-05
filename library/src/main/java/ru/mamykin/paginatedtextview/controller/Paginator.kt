@@ -1,4 +1,4 @@
-package ru.mamykin.swipeabletextview.controller
+package ru.mamykin.paginatedtextview.controller
 
 import android.text.Layout
 import android.text.StaticLayout

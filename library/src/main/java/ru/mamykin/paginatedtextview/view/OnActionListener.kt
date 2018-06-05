@@ -1,6 +1,6 @@
-package ru.mamykin.swipeabletextview.view
+package ru.mamykin.paginatedtextview.view
 
-import ru.mamykin.swipeabletextview.controller.ReadState
+import ru.mamykin.paginatedtextview.controller.ReadState
 
 interface OnActionListener {
 

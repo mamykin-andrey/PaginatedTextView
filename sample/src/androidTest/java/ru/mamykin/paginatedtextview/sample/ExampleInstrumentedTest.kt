@@ -1,4 +1,4 @@
-package ru.mamykin.swipeabletextview.sample
+package ru.mamykin.paginatedtextview.sample
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

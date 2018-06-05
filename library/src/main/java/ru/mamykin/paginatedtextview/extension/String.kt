@@ -1,4 +1,4 @@
-package ru.mamykin.swipeabletextview.extension
+package ru.mamykin.paginatedtextview.extension
 
 fun CharSequence.allIndexesOf(char: Char): List<Int> {
     val indexes = mutableListOf<Int>()

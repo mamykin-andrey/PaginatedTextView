@@ -1,4 +1,4 @@
-package ru.mamykin.swipeabletextview.view
+package ru.mamykin.paginatedtextview.view
 
 interface OnSwipeListener {
 
