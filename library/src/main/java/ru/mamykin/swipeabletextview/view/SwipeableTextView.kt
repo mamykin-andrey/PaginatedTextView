@@ -5,8 +5,10 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.RectF
 import android.support.v7.widget.AppCompatTextView
-import android.text.*
-import android.text.style.ForegroundColorSpan
+import android.text.Layout
+import android.text.Spannable
+import android.text.StaticLayout
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.SparseIntArray
 import android.util.TypedValue
@@ -69,6 +71,7 @@ class SwipeableTextView : AppCompatTextView, OnSwipeListener {
         val currentPage = controller.getCurrentPage()
         setText(currentPage.pageText)
         actionListener?.onPageLoaded(currentPage)
+        updateWordsSpannables()
     }
 
     fun setOnActionListener(listener: OnActionListener) {
@@ -79,18 +82,24 @@ class SwipeableTextView : AppCompatTextView, OnSwipeListener {
         this.swipeListener = swipeListener
     }
 
-    override fun onSwipeLeft() {
+    override fun onSwipeLeft() = loadPrevPage()
+
+    private fun loadPrevPage() {
         val prevPage = controller.getPrevPage()
         text = prevPage.pageText
         swipeListener?.onSwipeLeft()
         actionListener?.onPageLoaded(prevPage)
+        updateWordsSpannables()
     }
 
-    override fun onSwipeRight() {
+    override fun onSwipeRight() = loadNextPage()
+
+    private fun loadNextPage() {
         val nextPage = controller.getNextPage()
         text = nextPage.pageText
         swipeListener?.onSwipeRight()
         actionListener?.onPageLoaded(nextPage)
+        updateWordsSpannables()
     }
 
     override fun setTextSize(size: Float) {
@@ -112,16 +121,16 @@ class SwipeableTextView : AppCompatTextView, OnSwipeListener {
     }
 
     private fun adjustTextSize() {
-//        if (initializedDimens) {
-//            val heightLimit = measuredHeight - compoundPaddingBottom - compoundPaddingTop
-//            widthLimit = measuredWidth - compoundPaddingLeft - compoundPaddingRight
-//            availableSpaceRect.right = widthLimit.toFloat()
-//            availableSpaceRect.bottom = heightLimit.toFloat()
-//
-//            val textSize = efficientTextSizeSearch(20, maxTextSize.toInt(), availableSpaceRect)
-//
-//            super.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
-//        }
+        if (initializedDimens) {
+            val heightLimit = measuredHeight - compoundPaddingBottom - compoundPaddingTop
+            widthLimit = measuredWidth - compoundPaddingLeft - compoundPaddingRight
+            availableSpaceRect.right = widthLimit.toFloat()
+            availableSpaceRect.bottom = heightLimit.toFloat()
+
+            val textSize = efficientTextSizeSearch(textSize.toInt(), maxTextSize.toInt(), availableSpaceRect)
+
+            super.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
+        }
     }
 
     /**
@@ -203,12 +212,12 @@ class SwipeableTextView : AppCompatTextView, OnSwipeListener {
     private fun updateWordsSpannables() {
         val spans = text as Spannable
         val spaceIndexes = text.trim().allIndexesOf(' ')
-        var start = 0
-        var end: Int
+        var wordStart = 0
+        var wordEnd: Int
         for (i in 0..spaceIndexes.size) {
-            end = if (i < spaceIndexes.size) spaceIndexes[i] else spans.length
-            spans.setSpan(clickableSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            start = end + 1
+            wordEnd = if (i < spaceIndexes.size) spaceIndexes[i] else spans.length
+            spans.setSpan(clickableSpan, wordStart, wordEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            wordStart = wordEnd + 1
         }
     }
 
@@ -237,19 +246,7 @@ class SwipeableTextView : AppCompatTextView, OnSwipeListener {
         return text.subSequence(parStart, parEnd).toString()
     }
 
-    fun setTranslation(text: CharSequence) {
-        val spTrans = SpannableString(text)
-        spTrans.setSpan(
-                ForegroundColorSpan(Color.RED),
-                0,
-                spTrans.length,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        setText(TextUtils.concat(getText(), "\n\n", spTrans))
-        updateWordsSpannables()
-    }
-
-    private val clickableSpan: SwipeableSpan = object : SwipeableSpan() {
+    private val clickableSpan: LongClickableSpan = object : LongClickableSpan() {
 
         override fun onClick(widget: View) {
             val paragraph = getSelectedParagraph(widget as TextView)

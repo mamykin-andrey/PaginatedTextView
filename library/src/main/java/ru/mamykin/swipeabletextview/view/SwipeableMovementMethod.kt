@@ -52,7 +52,7 @@ class SwipeableMovementMethod : LinkMovementMethod() {
 
     private fun getClickableSpan(event: MotionEvent,
                                  widget: TextView,
-                                 buffer: Spannable): SwipeableSpan {
+                                 buffer: Spannable): LongClickableSpan {
 
         val clickX = event.x - widget.totalPaddingLeft + widget.scrollX
         val clickY = event.y.toInt() - widget.totalPaddingTop + widget.scrollY
@@ -60,7 +60,7 @@ class SwipeableMovementMethod : LinkMovementMethod() {
         val line = widget.layout.getLineForVertical(clickY)
         val offset = widget.layout.getOffsetForHorizontal(line, clickX)
 
-        val spans = buffer.getSpans(offset, offset, SwipeableSpan::class.java)
+        val spans = buffer.getSpans(offset, offset, LongClickableSpan::class.java)
         return spans[0]
     }
 }
