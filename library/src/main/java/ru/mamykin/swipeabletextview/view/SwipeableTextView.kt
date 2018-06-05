@@ -11,12 +11,12 @@ import android.util.AttributeSet
 import android.util.SparseIntArray
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.TextView
-import ru.mamykin.swipeabletextview.controller.ReadState
 import ru.mamykin.swipeabletextview.controller.PaginationController
 import ru.mamykin.swipeabletextview.extension.allIndexesOf
 
-class SwipeableTextView : AppCompatTextView {
+class SwipeableTextView : AppCompatTextView, OnSwipeListener {
 
     private val textCachedSizes = SparseIntArray()
     private val availableSpaceRect = RectF()
@@ -24,8 +24,8 @@ class SwipeableTextView : AppCompatTextView {
     private val textRect = RectF()
     private var initializedDimens: Boolean = false
     private var widthLimit: Int = 0
-    private lateinit var swipeListener: OnSwipeListener
-    private lateinit var actionListener: OnActionListener
+    private var swipeListener: OnSwipeListener? = null
+    private var actionListener: OnActionListener? = null
     private lateinit var controller: PaginationController
 
     constructor(context: Context) : super(context) {
@@ -39,6 +39,7 @@ class SwipeableTextView : AppCompatTextView {
     private fun initSwipeableTextView() {
         movementMethod = SwipeableMovementMethod()
         highlightColor = Color.TRANSPARENT
+        setOnTouchListener(SwipeDetector(this))
     }
 
     private fun getSelectedWord(): String {
@@ -46,43 +47,50 @@ class SwipeableTextView : AppCompatTextView {
     }
 
     fun setup(text: CharSequence) {
-        setOnSwipeListener(object : OnSwipeListener {
-            override fun onSwipeLeft() {
-                val nextPage = controller.getNextPage()
-                setText(nextPage.pageText)
-                actionListener.onPageLoaded(nextPage)
-                swipeListener.onSwipeLeft()
+        val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                loadFirstPage(text)
             }
-
-            override fun onSwipeRight() {
-                val prevPage = controller.getPrevPage()
-                setText(prevPage.pageText)
-                actionListener.onPageLoaded(prevPage)
-                swipeListener.onSwipeRight()
-            }
-        })
-        viewTreeObserver.addOnGlobalLayoutListener {
-            controller = PaginationController(
-                    text,
-                    width,
-                    height,
-                    paint,
-                    lineSpacingMultiplier,
-                    lineSpacingExtra,
-                    includeFontPadding
-            )
-            val currentPage = controller.getCurrentPage()
-            setText(currentPage.pageText)
-            actionListener.onPageLoaded(currentPage)
         }
+        viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
     }
 
-    fun setOnSwipeListener(listener: OnSwipeListener) {
-        this.setOnTouchListener(SwipeDetector(listener))
+    private fun loadFirstPage(text: CharSequence) {
+        controller = PaginationController(
+                text,
+                width,
+                height,
+                paint,
+                lineSpacingMultiplier,
+                lineSpacingExtra,
+                includeFontPadding
+        )
+        val currentPage = controller.getCurrentPage()
+        setText(currentPage.pageText)
+        actionListener?.onPageLoaded(currentPage)
     }
 
     fun setOnActionListener(listener: OnActionListener) {
         this.actionListener = listener
+    }
+
+    fun setOnSwipeListener(swipeListener: OnSwipeListener) {
+        this.swipeListener = swipeListener
+    }
+
+    override fun onSwipeLeft() {
+        val prevPage = controller.getPrevPage()
+        text = prevPage.pageText
+        swipeListener?.onSwipeLeft()
+        actionListener?.onPageLoaded(prevPage)
+    }
+
+    override fun onSwipeRight() {
+        val nextPage = controller.getNextPage()
+        text = nextPage.pageText
+        swipeListener?.onSwipeRight()
+        actionListener?.onPageLoaded(nextPage)
     }
 
     override fun setTextSize(size: Float) {
@@ -246,31 +254,15 @@ class SwipeableTextView : AppCompatTextView {
         override fun onClick(widget: View) {
             val paragraph = getSelectedParagraph(widget as TextView)
             if (!TextUtils.isEmpty(paragraph)) {
-                actionListener.onLongClick(paragraph!!)
+                actionListener?.onLongClick(paragraph!!)
             }
         }
 
         override fun onLongClick(view: View) {
             val word = getSelectedWord()
             if (!TextUtils.isEmpty(word)) {
-                actionListener.onClick(word)
+                actionListener?.onClick(word)
             }
         }
-    }
-
-    interface OnActionListener {
-
-        fun onPageLoaded(state: ReadState)
-
-        fun onClick(paragraph: String)
-
-        fun onLongClick(word: String)
-    }
-
-    interface OnSwipeListener {
-
-        fun onSwipeLeft()
-
-        fun onSwipeRight()
     }
 }

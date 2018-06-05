@@ -3,7 +3,7 @@ package ru.mamykin.swipeabletextview.view
 import android.view.MotionEvent
 import android.view.View
 
-class SwipeDetector(private val listener: SwipeableTextView.OnSwipeListener) : View.OnTouchListener {
+class SwipeDetector(private val listener: OnSwipeListener) : View.OnTouchListener {
 
     companion object {
         const val MIN_TIME_THRESHOLD = 1000
@@ -31,9 +31,9 @@ class SwipeDetector(private val listener: SwipeableTextView.OnSwipeListener) : V
         val diffXCoord = event.x - startXCoord
         if (diffTime < MIN_TIME_THRESHOLD && Math.abs(diffXCoord) > MIN_COORD_THRESHOLD) {
             if (diffXCoord > 0) {
-                listener.onSwipeRight()
-            } else {
                 listener.onSwipeLeft()
+            } else {
+                listener.onSwipeRight()
             }
         }
     }

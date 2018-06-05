@@ -6,9 +6,11 @@ import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import ru.mamykin.swipeabletextview.controller.ReadState
+import ru.mamykin.swipeabletextview.view.OnActionListener
+import ru.mamykin.swipeabletextview.view.OnSwipeListener
 import ru.mamykin.swipeabletextview.view.SwipeableTextView
 
-class MainActivity : AppCompatActivity(), SwipeableTextView.OnSwipeListener, SwipeableTextView.OnActionListener {
+class MainActivity : AppCompatActivity(), OnSwipeListener, OnActionListener {
 
     private lateinit var tvReadPercent: TextView
     private lateinit var tvReadPages: TextView
@@ -22,8 +24,8 @@ class MainActivity : AppCompatActivity(), SwipeableTextView.OnSwipeListener, Swi
 
         val tvBookContent = findViewById<SwipeableTextView>(R.id.tv_book_content)
         tvBookContent.setup(getText())
-        tvBookContent.setOnSwipeListener(this)
         tvBookContent.setOnActionListener(this)
+        tvBookContent.setOnSwipeListener(this)
     }
 
     private fun getText(): String {
