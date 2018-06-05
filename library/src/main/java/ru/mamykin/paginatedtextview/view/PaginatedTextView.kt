@@ -18,7 +18,7 @@ import android.widget.TextView
 import ru.mamykin.paginatedtextview.controller.PaginationController
 import ru.mamykin.paginatedtextview.extension.allIndexesOf
 
-class SwipeableTextView : AppCompatTextView, OnSwipeListener {
+class PaginatedTextView : AppCompatTextView, OnSwipeListener {
 
     private val textCachedSizes = SparseIntArray()
     private val availableSpaceRect = RectF()

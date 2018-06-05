@@ -8,7 +8,7 @@ import android.widget.Toast.LENGTH_LONG
 import ru.mamykin.paginatedtextview.controller.ReadState
 import ru.mamykin.paginatedtextview.view.OnActionListener
 import ru.mamykin.paginatedtextview.view.OnSwipeListener
-import ru.mamykin.paginatedtextview.view.SwipeableTextView
+import ru.mamykin.paginatedtextview.view.PaginatedTextView
 
 class MainActivity : AppCompatActivity(), OnSwipeListener, OnActionListener {
 
@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity(), OnSwipeListener, OnActionListener {
         tvReadPercent = findViewById(R.id.tv_percent_read)
         tvReadPages = findViewById(R.id.tv_pages_read)
 
-        val tvBookContent = findViewById<SwipeableTextView>(R.id.tv_book_content)
+        val tvBookContent = findViewById<PaginatedTextView>(R.id.tv_book_content)
         tvBookContent.setup(getText())
         tvBookContent.setOnActionListener(this)
         tvBookContent.setOnSwipeListener(this)
