@@ -15,8 +15,8 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.TextView
-import ru.mamykin.paginatedtextview.pagination.PaginationController
 import ru.mamykin.paginatedtextview.extension.allIndexesOf
+import ru.mamykin.paginatedtextview.pagination.PaginationController
 
 class PaginatedTextView : AppCompatTextView, OnSwipeListener {
 
@@ -31,17 +31,16 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
     private lateinit var controller: PaginationController
 
     constructor(context: Context) : super(context) {
-        initSwipeableTextView()
+        initPaginatedTextView()
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        initSwipeableTextView()
+        initPaginatedTextView()
     }
 
-    private fun initSwipeableTextView() {
+    private fun initPaginatedTextView() {
         movementMethod = SwipeableMovementMethod()
         highlightColor = Color.TRANSPARENT
-        setOnTouchListener(SwipeDetector(this))
     }
 
     private fun getSelectedWord(): String {
@@ -216,7 +215,7 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
         var wordEnd: Int
         for (i in 0..spaceIndexes.size) {
             wordEnd = if (i < spaceIndexes.size) spaceIndexes[i] else spans.length
-            spans.setSpan(clickableSpan, wordStart, wordEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spans.setSpan(createSwipeableSpan(), wordStart, wordEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             wordStart = wordEnd + 1
         }
     }
@@ -246,20 +245,28 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
         return text.subSequence(parStart, parEnd).toString()
     }
 
-    private val clickableSpan: LongClickableSpan = object : LongClickableSpan() {
+    fun createSwipeableSpan(): SwipeableSpan = object : SwipeableSpan() {
 
         override fun onClick(widget: View) {
             val paragraph = getSelectedParagraph(widget as TextView)
             if (!TextUtils.isEmpty(paragraph)) {
-                actionListener?.onLongClick(paragraph!!)
+                actionListener?.onClick(paragraph!!)
             }
         }
 
         override fun onLongClick(view: View) {
             val word = getSelectedWord()
             if (!TextUtils.isEmpty(word)) {
-                actionListener?.onClick(word)
+                actionListener?.onLongClick(word)
             }
+        }
+
+        override fun onSwipeLeft(view: View) {
+            swipeListener?.onSwipeLeft()
+        }
+
+        override fun onSwipeRight(view: View) {
+            swipeListener?.onSwipeRight()
         }
     }
 }
