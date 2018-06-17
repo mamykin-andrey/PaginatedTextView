@@ -17,6 +17,7 @@ import android.view.ViewTreeObserver
 import android.widget.TextView
 import ru.mamykin.paginatedtextview.extension.allIndexesOf
 import ru.mamykin.paginatedtextview.pagination.PaginationController
+import ru.mamykin.paginatedtextview.pagination.ReadState
 
 class PaginatedTextView : AppCompatTextView, OnSwipeListener {
 
@@ -67,10 +68,7 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
                 lineSpacingExtra,
                 includeFontPadding
         )
-        val currentPage = controller.getCurrentPage()
-        setText(currentPage.pageText)
-        actionListener?.onPageLoaded(currentPage)
-        updateWordsSpannables()
+        setPageText(controller.getCurrentPage())
     }
 
     fun setOnActionListener(listener: OnActionListener) {
@@ -81,24 +79,20 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
         this.swipeListener = swipeListener
     }
 
-    override fun onSwipeLeft() = loadPrevPage()
-
-    private fun loadPrevPage() {
-        val prevPage = controller.getPrevPage()
-        text = prevPage.pageText
-        swipeListener?.onSwipeLeft()
-        actionListener?.onPageLoaded(prevPage)
+    private fun setPageText(pageState: ReadState) {
+        this.text = pageState.pageText
+        actionListener?.onPageLoaded(pageState)
         updateWordsSpannables()
     }
 
-    override fun onSwipeRight() = loadNextPage()
+    override fun onSwipeLeft() {
+        setPageText(controller.getPrevPage())
+        swipeListener?.onSwipeLeft()
+    }
 
-    private fun loadNextPage() {
-        val nextPage = controller.getNextPage()
-        text = nextPage.pageText
+    override fun onSwipeRight() {
+        setPageText(controller.getNextPage())
         swipeListener?.onSwipeRight()
-        actionListener?.onPageLoaded(nextPage)
-        updateWordsSpannables()
     }
 
     override fun setTextSize(size: Float) {
@@ -214,8 +208,9 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
         var wordStart = 0
         var wordEnd: Int
         for (i in 0..spaceIndexes.size) {
+            val swipeableSpan = createSwipeableSpan()
             wordEnd = if (i < spaceIndexes.size) spaceIndexes[i] else spans.length
-            spans.setSpan(createSwipeableSpan(), wordStart, wordEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spans.setSpan(swipeableSpan, wordStart, wordEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             wordStart = wordEnd + 1
         }
     }
@@ -245,7 +240,7 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
         return text.subSequence(parStart, parEnd).toString()
     }
 
-    fun createSwipeableSpan(): SwipeableSpan = object : SwipeableSpan() {
+    private fun createSwipeableSpan(): SwipeableSpan = object : SwipeableSpan() {
 
         override fun onClick(widget: View) {
             val paragraph = getSelectedParagraph(widget as TextView)
