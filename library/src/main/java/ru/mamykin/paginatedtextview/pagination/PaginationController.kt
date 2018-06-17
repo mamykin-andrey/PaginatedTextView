@@ -1,4 +1,4 @@
-package ru.mamykin.paginatedtextview.controller
+package ru.mamykin.paginatedtextview.pagination
 
 import android.text.TextPaint
 

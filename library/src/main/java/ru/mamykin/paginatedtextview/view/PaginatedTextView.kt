@@ -15,7 +15,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.TextView
-import ru.mamykin.paginatedtextview.controller.PaginationController
+import ru.mamykin.paginatedtextview.pagination.PaginationController
 import ru.mamykin.paginatedtextview.extension.allIndexesOf
 
 class PaginatedTextView : AppCompatTextView, OnSwipeListener {

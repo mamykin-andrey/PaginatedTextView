@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
-import ru.mamykin.paginatedtextview.controller.ReadState
+import ru.mamykin.paginatedtextview.pagination.ReadState
 import ru.mamykin.paginatedtextview.view.OnActionListener
 import ru.mamykin.paginatedtextview.view.OnSwipeListener
 import ru.mamykin.paginatedtextview.view.PaginatedTextView
