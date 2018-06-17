@@ -21,6 +21,10 @@ import ru.mamykin.paginatedtextview.pagination.ReadState
 
 class PaginatedTextView : AppCompatTextView, OnSwipeListener {
 
+    companion object {
+        const val MIN_TEXT_SIZE = 26
+    }
+
     private val textCachedSizes = SparseIntArray()
     private val availableSpaceRect = RectF()
     private var maxTextSize = textSize
@@ -120,7 +124,7 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
             availableSpaceRect.right = widthLimit.toFloat()
             availableSpaceRect.bottom = heightLimit.toFloat()
 
-            val textSize = efficientTextSizeSearch(textSize.toInt(), maxTextSize.toInt(), availableSpaceRect)
+            val textSize = efficientTextSizeSearch(MIN_TEXT_SIZE, maxTextSize.toInt(), availableSpaceRect)
 
             super.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
         }
@@ -178,11 +182,9 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
         while (lowSize <= highSize) {
             currentSize = (lowSize + highSize) / 2
             if (checkTextFits(currentSize, availableSpace)) {
-                // Нормальный текст/маленький
                 lastBest = currentSize
                 lowSize = currentSize + 1
             } else {
-                // Слишком большой текст
                 highSize = currentSize - 1
                 lastBest = lowSize
             }
