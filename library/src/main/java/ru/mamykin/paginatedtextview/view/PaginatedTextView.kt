@@ -19,7 +19,7 @@ import ru.mamykin.paginatedtextview.extension.allIndexesOf
 import ru.mamykin.paginatedtextview.pagination.PaginationController
 import ru.mamykin.paginatedtextview.pagination.ReadState
 
-class PaginatedTextView : AppCompatTextView, OnSwipeListener {
+class PaginatedTextView : AppCompatTextView {
 
     companion object {
         const val MIN_TEXT_SIZE = 26
@@ -72,7 +72,7 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
                 lineSpacingExtra,
                 includeFontPadding
         )
-        setPageText(controller.getCurrentPage())
+        setPageState(controller.getCurrentPage())
     }
 
     fun setOnActionListener(listener: OnActionListener) {
@@ -83,20 +83,10 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
         this.swipeListener = swipeListener
     }
 
-    private fun setPageText(pageState: ReadState) {
+    private fun setPageState(pageState: ReadState) {
         this.text = pageState.pageText
         actionListener?.onPageLoaded(pageState)
         updateWordsSpannables()
-    }
-
-    override fun onSwipeLeft() {
-        setPageText(controller.getPrevPage())
-        swipeListener?.onSwipeLeft()
-    }
-
-    override fun onSwipeRight() {
-        setPageText(controller.getNextPage())
-        swipeListener?.onSwipeRight()
     }
 
     override fun setTextSize(size: Float) {
@@ -124,7 +114,7 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
             availableSpaceRect.right = widthLimit.toFloat()
             availableSpaceRect.bottom = heightLimit.toFloat()
 
-            val textSize = efficientTextSizeSearch(MIN_TEXT_SIZE, maxTextSize.toInt(), availableSpaceRect)
+            val textSize = getFitsTextSize(MIN_TEXT_SIZE, maxTextSize.toInt(), availableSpaceRect)
 
             super.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
         }
@@ -164,32 +154,23 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
         return aArea >= bArea
     }
 
-    private fun efficientTextSizeSearch(start: Int, end: Int, availableSpace: RectF): Int {
+    private fun getFitsTextSize(start: Int, end: Int, availableSpace: RectF): Int {
         val key = text.toString().length
         val size = textCachedSizes.get(key)
-        if (size != 0) {
-            return size
+        return if (size != 0)
+            size
+        else textSizeSearch(start, end, availableSpace).apply {
+            textCachedSizes.put(key, this)
         }
-        textCachedSizes.put(key, size)
-        return binarySearch(start, end, availableSpace)
     }
 
-    private fun binarySearch(start: Int, end: Int, availableSpace: RectF): Int {
-        var lastBest = start
-        var lowSize = start
-        var highSize = end - 1
-        var currentSize: Int
-        while (lowSize <= highSize) {
-            currentSize = (lowSize + highSize) / 2
-            if (checkTextFits(currentSize, availableSpace)) {
-                lastBest = currentSize
-                lowSize = currentSize + 1
-            } else {
-                highSize = currentSize - 1
-                lastBest = lowSize
+    private fun textSizeSearch(minSize: Int, maxSize: Int, availableSpace: RectF): Int {
+        for (size in maxSize downTo minSize) {
+            if (checkTextFits(size, availableSpace)) {
+                return size
             }
         }
-        return lastBest
+        return minSize
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
@@ -259,11 +240,13 @@ class PaginatedTextView : AppCompatTextView, OnSwipeListener {
         }
 
         override fun onSwipeLeft(view: View) {
-            swipeListener?.onSwipeLeft()
+            setPageState(controller.getNextPage())
+            swipeListener?.onSwipeRight()
         }
 
         override fun onSwipeRight(view: View) {
-            swipeListener?.onSwipeRight()
+            setPageState(controller.getPrevPage())
+            swipeListener?.onSwipeLeft()
         }
     }
 }
