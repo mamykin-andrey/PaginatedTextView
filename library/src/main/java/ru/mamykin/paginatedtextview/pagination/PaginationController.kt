@@ -21,18 +21,22 @@ class PaginationController(text: CharSequence,
         )
     }
 
-    fun getNextPage(): ReadState {
-        if (paginator.currentIndex < paginator.pagesCount - 1) {
+    fun getNextPage(): ReadState? {
+        return if (paginator.currentIndex < paginator.pagesCount - 1) {
             paginator.currentIndex++
+            getCurrentPage()
+        } else {
+            null
         }
-        return getCurrentPage()
     }
 
-    fun getPrevPage(): ReadState {
-        if (paginator.currentIndex > 0) {
+    fun getPrevPage(): ReadState? {
+        return if (paginator.currentIndex > 0) {
             paginator.currentIndex--
+            getCurrentPage()
+        } else {
+            null
         }
-        return getCurrentPage()
     }
 
     private fun getReadPercent(): Float = when (paginator.pagesCount) {

@@ -113,9 +113,7 @@ class PaginatedTextView : AppCompatTextView {
             widthLimit = measuredWidth - compoundPaddingLeft - compoundPaddingRight
             availableSpaceRect.right = widthLimit.toFloat()
             availableSpaceRect.bottom = heightLimit.toFloat()
-
             val textSize = getFitsTextSize(MIN_TEXT_SIZE, maxTextSize.toInt(), availableSpaceRect)
-
             super.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
         }
     }
@@ -240,13 +238,17 @@ class PaginatedTextView : AppCompatTextView {
         }
 
         override fun onSwipeLeft(view: View) {
-            setPageState(controller.getNextPage())
-            swipeListener?.onSwipeRight()
+            controller.getPrevPage()?.apply {
+                setPageState(this)
+                swipeListener?.onSwipeLeft()
+            }
         }
 
         override fun onSwipeRight(view: View) {
-            setPageState(controller.getPrevPage())
-            swipeListener?.onSwipeLeft()
+            controller.getNextPage()?.apply {
+                setPageState(this)
+                swipeListener?.onSwipeRight()
+            }
         }
     }
 }
