@@ -10,7 +10,8 @@ import android.widget.TextView
 class SwipeableMovementMethod : LinkMovementMethod() {
 
     companion object {
-        const val MIN_TIME_THRESHOLD = 100
+        const val MIN_TIME_THRESHOLD = 50
+        const val MAX_TIME_THRESHOLD = 500
         const val MIN_COORD_POSITIVE_THRESHOLD = 100
         const val MIN_COORD_NEGATIVE_THRESHOLD = MIN_COORD_POSITIVE_THRESHOLD * -1
     }
@@ -46,7 +47,7 @@ class SwipeableMovementMethod : LinkMovementMethod() {
         val timeDiff = event.eventTime - startTime
         val xCoordDiff = event.x - startXCoord
 
-        if (timeDiff < MIN_TIME_THRESHOLD) {
+        if (timeDiff in MIN_TIME_THRESHOLD..MAX_TIME_THRESHOLD) {
             longClickHandler.removeCallbacksAndMessages(null)
             val link = getClickableSpan(event, widget, buffer)
             when {
