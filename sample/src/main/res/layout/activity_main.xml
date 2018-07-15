@@ -8,48 +8,15 @@
     tools:context=".MainActivity">
 
     <ru.mamykin.paginatedtextview.view.PaginatedTextView
-        android:id="@+id/tv_book_content"
+        android:id="@+id/tv_book_text"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:textSize="16sp"
-        android:padding="10dp"
+        android:padding="@dimen/margin_medium"
         android:textColor="@color/text_color"
-        android:textColorHighlight="@android:color/transparent"
-        android:text="@string/sample_text" />
+        android:textSize="18sp"
+        tools:text="@string/sample_text" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:background="#999999"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:text="Young giant" />
-
-        <TextView
-            android:id="@+id/tv_pages_read"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            tools:text="1/13" />
-
-        <TextView
-            android:id="@+id/tv_percent_read"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp"
-            android:gravity="center_vertical"
-            tools:text="7.69%" />
-
-    </LinearLayout>
+    <include layout="@layout/view_info_panel" />
 
 </LinearLayout>
