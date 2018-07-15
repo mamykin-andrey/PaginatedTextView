@@ -7,13 +7,16 @@ import android.text.method.LinkMovementMethod
 import android.view.MotionEvent
 import android.widget.TextView
 
+/**
+ * An extended version of LinkMovement method, which also support long clicks and swipes
+ */
 class SwipeableMovementMethod : LinkMovementMethod() {
 
     companion object {
-        const val MIN_TIME_THRESHOLD = 50
         const val MAX_TIME_THRESHOLD = 500
         const val MIN_COORD_POSITIVE_THRESHOLD = 100
         const val MIN_COORD_NEGATIVE_THRESHOLD = MIN_COORD_POSITIVE_THRESHOLD * -1
+        const val DEFAULT_LONG_CLICK_DELAY = 1000L
     }
 
     private var longClickHandler = Handler()
@@ -40,14 +43,14 @@ class SwipeableMovementMethod : LinkMovementMethod() {
         val link = getClickableSpan(event, widget, buffer)
         Selection.setSelection(buffer, buffer.getSpanStart(link), buffer.getSpanEnd(link))
 
-        longClickHandler.postDelayed({ link.onLongClick(widget) }, 1000)
+        longClickHandler.postDelayed({ link.onLongClick(widget) }, DEFAULT_LONG_CLICK_DELAY)
     }
 
     private fun handleUpAction(event: MotionEvent, buffer: Spannable, widget: TextView) {
         val timeDiff = event.eventTime - startTime
         val xCoordDiff = event.x - startXCoord
 
-        if (timeDiff in MIN_TIME_THRESHOLD..MAX_TIME_THRESHOLD) {
+        if (timeDiff < MAX_TIME_THRESHOLD) {
             longClickHandler.removeCallbacksAndMessages(null)
             val link = getClickableSpan(event, widget, buffer)
             when {

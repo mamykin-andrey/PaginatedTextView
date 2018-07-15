@@ -5,32 +5,35 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.RectF
 import android.support.v7.widget.AppCompatTextView
-import android.text.Layout
-import android.text.Spannable
-import android.text.StaticLayout
-import android.text.TextUtils
+import android.text.*
 import android.util.AttributeSet
 import android.util.SparseIntArray
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.TextView
-import ru.mamykin.paginatedtextview.extension.allIndexesOf
+import ru.mamykin.paginatedtextview.extension.allWordsPositions
+import ru.mamykin.paginatedtextview.extension.getMaxLineWidth
 import ru.mamykin.paginatedtextview.pagination.PaginationController
 import ru.mamykin.paginatedtextview.pagination.ReadState
 
+/**
+ * An extended TextView, which support pagination, clicks by paragraphs and long clicks by words
+ */
 class PaginatedTextView : AppCompatTextView {
 
     companion object {
         const val MIN_TEXT_SIZE = 26
+        const val DEFAULT_SPACING_MULT = 1.0f
+        const val DEFAULT_SPACING_ADD = 0.0f
     }
 
     private val textCachedSizes = SparseIntArray()
     private val availableSpaceRect = RectF()
     private var maxTextSize = textSize
     private val textRect = RectF()
+    private val textPaint = TextPaint(paint)
     private var initializedDimens: Boolean = false
-    private var widthLimit: Int = 0
     private var swipeListener: OnSwipeListener? = null
     private var actionListener: OnActionListener? = null
     private lateinit var controller: PaginationController
@@ -43,50 +46,18 @@ class PaginatedTextView : AppCompatTextView {
         initPaginatedTextView()
     }
 
-    private fun initPaginatedTextView() {
-        movementMethod = SwipeableMovementMethod()
-        highlightColor = Color.TRANSPARENT
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int) :
+            super(context, attrs, defStyle) {
+        initPaginatedTextView()
     }
 
-    private fun getSelectedWord(): String {
-        return text.subSequence(selectionStart, selectionEnd).trim(' ').toString()
-    }
-
-    fun setup(text: CharSequence) {
-        val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
-                loadFirstPage(text)
-            }
+    override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
+        super.onSizeChanged(width, height, oldWidth, oldHeight)
+        initializedDimens = true
+        textCachedSizes.clear()
+        if (width != oldWidth || height != oldHeight) {
+            adjustTextSize()
         }
-        viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
-    }
-
-    private fun loadFirstPage(text: CharSequence) {
-        controller = PaginationController(
-                text,
-                width,
-                height,
-                paint,
-                lineSpacingMultiplier,
-                lineSpacingExtra,
-                includeFontPadding
-        )
-        setPageState(controller.getCurrentPage())
-    }
-
-    fun setOnActionListener(listener: OnActionListener) {
-        this.actionListener = listener
-    }
-
-    fun setOnSwipeListener(swipeListener: OnSwipeListener) {
-        this.swipeListener = swipeListener
-    }
-
-    private fun setPageState(pageState: ReadState) {
-        this.text = pageState.pageText
-        actionListener?.onPageLoaded(pageState)
-        updateWordsSpannables()
     }
 
     override fun setTextSize(size: Float) {
@@ -107,40 +78,99 @@ class PaginatedTextView : AppCompatTextView {
         adjustTextSize()
     }
 
+    /**
+     * Setting up a TextView
+     *
+     * @param text text to set
+     */
+    fun setup(text: CharSequence) {
+        val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                loadFirstPage(text)
+            }
+        }
+        viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+    }
+
+    /**
+     * Setting up a listener, which will receive following callbacks:
+     * - about page loading
+     * - about clicks by paragraphs
+     * - about long clicks by words
+     *
+     * @param listener a listener, which will receive callbacks
+     */
+    fun setOnActionListener(listener: OnActionListener) {
+        this.actionListener = listener
+    }
+
+    /**
+     * Setting up a listener, which will receive swipe callbacks
+     *
+     * @param listener a listener which will receive swipe callbacks
+     */
+    fun setOnSwipeListener(swipeListener: OnSwipeListener) {
+        this.swipeListener = swipeListener
+    }
+
+    private fun initPaginatedTextView() {
+        movementMethod = SwipeableMovementMethod()
+        highlightColor = Color.TRANSPARENT
+    }
+
+    private fun setPageState(pageState: ReadState) {
+        this.text = pageState.pageText
+        actionListener?.onPageLoaded(pageState)
+        updateWordsSpannables()
+    }
+
+    private fun getSelectedWord(): String {
+        return text.subSequence(selectionStart, selectionEnd).trim(' ').toString()
+    }
+
+    private fun loadFirstPage(text: CharSequence) {
+        controller = PaginationController(
+                text,
+                width,
+                height,
+                textPaint,
+                lineSpacingMultiplier,
+                lineSpacingExtra,
+                includeFontPadding
+        )
+        setPageState(controller.getCurrentPage())
+    }
+
     private fun adjustTextSize() {
         if (initializedDimens) {
             val heightLimit = measuredHeight - compoundPaddingBottom - compoundPaddingTop
-            widthLimit = measuredWidth - compoundPaddingLeft - compoundPaddingRight
+            val widthLimit = measuredWidth - compoundPaddingLeft - compoundPaddingRight
             availableSpaceRect.right = widthLimit.toFloat()
             availableSpaceRect.bottom = heightLimit.toFloat()
-            val textSize = getFitsTextSize(MIN_TEXT_SIZE, maxTextSize.toInt(), availableSpaceRect)
+            val textSize = calculateFitsTextSize(
+                    MIN_TEXT_SIZE,
+                    maxTextSize.toInt(),
+                    availableSpaceRect,
+                    widthLimit
+            )
             super.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
         }
     }
 
-    /**
-     * Проверка того, что текст вмещается в необходимые размеры
-     */
-    private fun checkTextFits(suggestedSize: Int, availableRect: RectF): Boolean {
-        paint.textSize = suggestedSize.toFloat()
+    private fun checkTextFits(suggestedSize: Int, availableRect: RectF, widthLimit: Int): Boolean {
+        textPaint.textSize = suggestedSize.toFloat()
         val layout = StaticLayout(
                 text,
-                paint,
+                textPaint,
                 widthLimit,
                 Layout.Alignment.ALIGN_NORMAL,
-                1.0f,
-                0.0f,
+                DEFAULT_SPACING_MULT,
+                DEFAULT_SPACING_ADD,
                 true
         )
-
         textRect.bottom = layout.height.toFloat()
-        var maxWidth = -1
-        for (i in 0..layout.lineCount) {
-            if (maxWidth < layout.getLineWidth(i)) {
-                maxWidth = layout.getLineWidth(i).toInt()
-            }
-        }
-        textRect.right = maxWidth.toFloat()
+        textRect.right = layout.getMaxLineWidth()
         return containsRectF(availableRect, textRect)
     }
 
@@ -152,40 +182,34 @@ class PaginatedTextView : AppCompatTextView {
         return aArea >= bArea
     }
 
-    private fun getFitsTextSize(start: Int, end: Int, availableSpace: RectF): Int {
-        val key = text.toString().length
+    private fun calculateFitsTextSize(start: Int,
+                                      end: Int,
+                                      availableSpace: RectF,
+                                      widthLimit: Int): Int {
+        val key = text.length
         val size = textCachedSizes.get(key)
         return if (size != 0)
             size
-        else textSizeSearch(start, end, availableSpace).apply {
+        else textSizeSearch(start, end, availableSpace, widthLimit).apply {
             textCachedSizes.put(key, this)
         }
     }
 
-    private fun textSizeSearch(minSize: Int, maxSize: Int, availableSpace: RectF): Int {
+    private fun textSizeSearch(minSize: Int,
+                               maxSize: Int,
+                               availableSpace: RectF,
+                               widthLimit: Int): Int {
         for (size in maxSize downTo minSize) {
-            if (checkTextFits(size, availableSpace)) {
+            if (checkTextFits(size, availableSpace, widthLimit)) {
                 return size
             }
         }
         return minSize
     }
 
-    override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
-        super.onSizeChanged(width, height, oldWidth, oldHeight)
-        initializedDimens = true
-        textCachedSizes.clear()
-        if (width != oldWidth || height != oldHeight) {
-            adjustTextSize()
-        }
-    }
-
-    /**
-     * Установка swipable spannable на каждое слово в TextView
-     */
     private fun updateWordsSpannables() {
         val spans = text as Spannable
-        val spaceIndexes = text.trim().allIndexesOf(' ')
+        val spaceIndexes = text.trim().allWordsPositions()
         var wordStart = 0
         var wordEnd: Int
         for (i in 0..spaceIndexes.size) {
@@ -200,25 +224,23 @@ class PaginatedTextView : AppCompatTextView {
         val text = widget.text
         val selStart = widget.selectionStart
         val selEnd = widget.selectionEnd
-        var parStart: Int
-        var parEnd: Int
-        // Если кликнули по пустому параграфу
-        if (text.subSequence(selStart, selEnd).toString().contains("\n")) {
-            // Номер символа, с которого начинается нужный абзац
-            parStart = text.subSequence(0, selEnd).toString().lastIndexOf("\n")
-            parStart = if (parStart == -1) 0 else parStart
-            // Номер символа на котором кончается абзац
-            parEnd = text.subSequence(selEnd, text.length).toString().indexOf("\n")
-            parEnd = if (parEnd == -1) text.length else parEnd + selEnd
-        } else {
-            // Номер символа, с которого начинается нужный абзац
-            parStart = text.subSequence(0, selStart).toString().lastIndexOf("\n")
-            parStart = if (parStart == -1) 0 else parStart
-            // Номер символа на котором кончается абзац
-            parEnd = text.subSequence(selEnd, text.length).toString().indexOf("\n")
-            parEnd = if (parEnd == -1) text.length else parEnd + selEnd
-        }
+        val parStart = findLeftLineBreak(text, selStart)
+        val parEnd = findRightLineBreak(text, selEnd)
         return text.subSequence(parStart, parEnd).toString()
+    }
+
+    private fun findLeftLineBreak(text: CharSequence, selStart: Int): Int {
+        for (i in selStart downTo 0) {
+            if (text[i] == '\n') return i + 1
+        }
+        return 0
+    }
+
+    private fun findRightLineBreak(text: CharSequence, selEnd: Int): Int {
+        for (i in selEnd until text.length) {
+            if (text[i] == '\n') return i + 1
+        }
+        return text.length - 1
     }
 
     private fun createSwipeableSpan(): SwipeableSpan = object : SwipeableSpan() {
