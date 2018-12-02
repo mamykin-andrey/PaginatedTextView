@@ -23,3 +23,17 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.android.support:appcompat-v7:27.1.1'
 }
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    }
+}
+
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+apply from: 'install.gradle'
