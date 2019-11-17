@@ -10,7 +10,7 @@ Extended Android TextView with pagination and clicks handling
 -   Detecting clicks by paragraphs
 -   Detecting long clicks by words
 
-<img src="/screens/word_clicked.jpg" width="250" />    <img src="/screens/paragraph_clicked.jpg" width="250" />    <img src="/screens/second_page.jpg" width="250" />
+![](screens/preview.gif)
 
 ### [](https://github.com/mamykin-av/PaginatedTextView#integration)Integration
 
