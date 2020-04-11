@@ -17,7 +17,7 @@ Extended Android TextView with pagination and clicks handling
 **1)**  Add library as a dependency to your project
 
 ```gradle
-implementation 'ru.mamykin.widget:paginatedtextview:0.1.0'
+implementation 'ru.mamykin.widget:paginatedtextview:0.1.1'
 ```
 
 **2)**  Add `ru.mamykin.paginatedtextview.view.PaginatedTextView` to your layout.

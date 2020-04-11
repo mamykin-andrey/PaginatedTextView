@@ -1,6 +1,6 @@
 ext {
-    bintrayRepo = 'PaginatedTextView'
-    bintrayName = 'PaginatedTextView'
+    bintrayRepo = 'maven'
+    bintrayName = 'paginatedtextview'
 
     publishedGroupId = 'ru.mamykin.paginatedtextview'
     libraryName = 'PaginatedTextView'
@@ -11,7 +11,7 @@ ext {
     siteUrl = 'https://github.com/mamykin-av/PaginatedTextView'
     gitUrl = 'https://github.com/mamykin-av/PaginatedTextView.git'
 
-    libraryVersion = '0.1.0'
+    libraryVersion = '0.1.1'
 
     developerId = 'mamykin-av'
     developerName = 'Andrey Mamykin'
