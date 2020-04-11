@@ -31,9 +31,9 @@ abstract class SwipeableSpan : ClickableSpan() {
      */
     abstract fun onSwipeRight(view: View)
 
-    override fun updateDrawState(ds: TextPaint?) {
+    override fun updateDrawState(ds: TextPaint) {
         super.updateDrawState(ds)
-        ds?.isUnderlineText = false
-        ds?.color = Color.BLACK
+        ds.isUnderlineText = false
+        ds.color = Color.BLACK
     }
 }

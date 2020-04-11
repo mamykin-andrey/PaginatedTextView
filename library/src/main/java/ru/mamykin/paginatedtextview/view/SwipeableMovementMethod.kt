@@ -13,6 +13,7 @@ import android.widget.TextView
 class SwipeableMovementMethod : LinkMovementMethod() {
 
     companion object {
+
         const val MAX_TIME_THRESHOLD = 500
         const val MIN_COORD_POSITIVE_THRESHOLD = 100
         const val MIN_COORD_NEGATIVE_THRESHOLD = MIN_COORD_POSITIVE_THRESHOLD * -1
@@ -61,10 +62,11 @@ class SwipeableMovementMethod : LinkMovementMethod() {
         }
     }
 
-    private fun getClickableSpan(event: MotionEvent,
-                                 widget: TextView,
-                                 buffer: Spannable): SwipeableSpan {
-
+    private fun getClickableSpan(
+            event: MotionEvent,
+            widget: TextView,
+            buffer: Spannable
+    ): SwipeableSpan {
         val clickX = event.x - widget.totalPaddingLeft + widget.scrollX
         val clickY = event.y.toInt() - widget.totalPaddingTop + widget.scrollY
 
