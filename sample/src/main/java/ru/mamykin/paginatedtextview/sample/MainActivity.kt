@@ -1,6 +1,5 @@
 package ru.mamykin.paginatedtextview.sample
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -18,17 +17,24 @@ class MainActivity : AppCompatActivity(), OnSwipeListener, OnActionListener {
     private lateinit var tvBookName: TextView
     private lateinit var tvReadPercent: TextView
     private lateinit var tvReadPages: TextView
+    private lateinit var tvBookContent: PaginatedTextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initViews()
+        initContent()
+    }
 
+    private fun initViews() {
         tvBookName = findViewById(R.id.tv_book_name)
         tvReadPercent = findViewById(R.id.tv_percent_read)
         tvReadPages = findViewById(R.id.tv_pages_read)
+        tvBookContent = findViewById(R.id.tv_book_text)
+    }
 
+    private fun initContent() {
         tvBookName.text = getString(R.string.book_name)
-        val tvBookContent = findViewById<PaginatedTextView>(R.id.tv_book_text)
         tvBookContent.setup(getText())
         tvBookContent.setOnActionListener(this)
         tvBookContent.setOnSwipeListener(this)
@@ -51,7 +57,7 @@ class MainActivity : AppCompatActivity(), OnSwipeListener, OnActionListener {
     }
 
     override fun onPageLoaded(state: ReadState) {
-        displayReadState(state)
+        showContent(state)
     }
 
     private fun getText(): String {
@@ -61,10 +67,16 @@ class MainActivity : AppCompatActivity(), OnSwipeListener, OnActionListener {
         return String(bytes)
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun displayReadState(readState: ReadState) {
-        tvReadPages.text = "${readState.currentIndex} / ${readState.pagesCount}"
-        tvReadPercent.text = "${readState.readPercent.toInt()}%"
+    private fun showContent(readState: ReadState) {
+        tvReadPages.text = getString(
+            R.string.read_pages_format,
+            readState.currentIndex,
+            readState.pagesCount
+        )
+        tvReadPercent.text = getString(
+            R.string.read_percent_format,
+            readState.readPercent
+        )
     }
 
     private fun showToast(text: String) {
