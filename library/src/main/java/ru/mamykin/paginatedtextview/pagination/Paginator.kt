@@ -8,20 +8,20 @@ import android.text.TextPaint
  * A class, which split text by pages, and control pages switching
  */
 class Paginator(
-        text: CharSequence,
-        width: Int,
-        height: Int,
-        paint: TextPaint,
-        spacingMult: Float,
-        spacingAdd: Float
+    text: CharSequence,
+    width: Int,
+    height: Int,
+    paint: TextPaint,
+    spacingMult: Float,
+    spacingAdd: Float
 ) {
     private val pages = parsePages(
-            text,
-            width,
-            height,
-            paint,
-            spacingMult,
-            spacingAdd
+        text,
+        width,
+        height,
+        paint,
+        spacingMult,
+        spacingAdd
     )
     var currentIndex = 0
     val pagesCount = pages.size
@@ -32,21 +32,21 @@ class Paginator(
     fun getCurrentPage(): CharSequence = pages[currentIndex]
 
     private fun parsePages(
-            content: CharSequence,
-            width: Int,
-            height: Int,
-            paint: TextPaint,
-            spacingMult: Float,
-            spacingAdd: Float
+        content: CharSequence,
+        width: Int,
+        height: Int,
+        paint: TextPaint,
+        spacingMult: Float,
+        spacingAdd: Float
     ): List<CharSequence> {
         val layout = StaticLayout(
-                content,
-                paint,
-                width,
-                Layout.Alignment.ALIGN_NORMAL,
-                spacingMult,
-                spacingAdd,
-                true
+            content,
+            paint,
+            width,
+            Layout.Alignment.ALIGN_NORMAL,
+            spacingMult,
+            spacingAdd,
+            true
         )
 
         val text = layout.text

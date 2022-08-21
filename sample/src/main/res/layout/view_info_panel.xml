@@ -7,7 +7,8 @@
     android:background="@color/bg_info_panel"
     android:orientation="horizontal"
     android:paddingLeft="@dimen/margin_medium"
-    android:paddingRight="@dimen/margin_medium">
+    android:paddingRight="@dimen/margin_medium"
+    >
 
     <TextView
         android:id="@+id/tv_book_name"
@@ -15,22 +16,25 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        tools:text="Young giant" />
+        tools:text="Young giant"
+        />
 
     <TextView
         android:id="@+id/tv_pages_read"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        tools:text="1/13" />
+        tools:text="1/13"
+        />
 
     <TextView
         android:id="@+id/tv_percent_read"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:gravity="center_vertical"
-        tools:text="7.69%" />
+        tools:text="7.69%"
+        />
 
 </LinearLayout>

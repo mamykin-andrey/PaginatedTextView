@@ -18,9 +18,9 @@ import ru.mamykin.paginatedtextview.pagination.ReadState
  * An extended TextView, which support pagination, clicks by paragraphs and long clicks by words
  */
 class PaginatedTextView @JvmOverloads constructor(
-        context: Context? = null,
-        attrs: AttributeSet? = null,
-        defStyle: Int = 0
+    context: Context? = null,
+    attrs: AttributeSet? = null,
+    defStyle: Int = 0
 ) : AppCompatTextView(context, attrs, defStyle) {
 
     private val textPaint = TextPaint(paint)
@@ -87,12 +87,12 @@ class PaginatedTextView @JvmOverloads constructor(
         val effectWidth = width - (paddingLeft + paddingRight)
         val effectHeight = height - (paddingTop + paddingBottom)
         controller = PaginationController(
-                text,
-                effectWidth,
-                effectHeight,
-                textPaint,
-                lineSpacingMultiplier,
-                lineSpacingExtra
+            text,
+            effectWidth,
+            effectHeight,
+            textPaint,
+            lineSpacingMultiplier,
+            lineSpacingExtra
         )
         setPageState(controller.getCurrentPage())
     }

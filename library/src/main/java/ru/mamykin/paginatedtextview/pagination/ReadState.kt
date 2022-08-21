@@ -8,8 +8,8 @@ package ru.mamykin.paginatedtextview.pagination
  * - text of current page
  */
 data class ReadState(
-        val currentIndex: Int,
-        val pagesCount: Int,
-        val readPercent: Float,
-        val pageText: CharSequence
+    val currentIndex: Int,
+    val pagesCount: Int,
+    val readPercent: Float,
+    val pageText: CharSequence
 )

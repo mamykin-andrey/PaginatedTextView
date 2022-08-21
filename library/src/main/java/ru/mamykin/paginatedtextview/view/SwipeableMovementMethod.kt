@@ -63,9 +63,9 @@ class SwipeableMovementMethod : LinkMovementMethod() {
     }
 
     private fun getClickableSpan(
-            event: MotionEvent,
-            widget: TextView,
-            buffer: Spannable
+        event: MotionEvent,
+        widget: TextView,
+        buffer: Spannable
     ): SwipeableSpan {
         val clickX = event.x - widget.totalPaddingLeft + widget.scrollX
         val clickY = event.y.toInt() - widget.totalPaddingTop + widget.scrollY
